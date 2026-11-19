@@ -1,8 +1,45 @@
 from flask import Blueprint, render_template, request, redirect, flash
-from app.database import obtener_conexion
 from decimal import Decimal, InvalidOperation
+import psycopg2
+from app.database import obtener_conexion
 
 bp = Blueprint("detalles", __name__, url_prefix="/detalles")
+
+
+def validar_detalle(form, ordenes, productos):
+    try:
+        orden = int(form.get('orden_id', ''))
+    except ValueError:
+        orden = None
+
+    if not any(o[0] == orden for o in ordenes):
+        return None, 'Selecciona una orden existente.'
+
+    try:
+        producto = int(form.get('producto_id', ''))
+    except ValueError:
+        producto = None
+
+    if not any(p[0] == producto for p in productos):
+        return None, 'Selecciona un producto existente.'
+
+    try:
+        cantidad = int(form.get('cantidad', ''))
+        if cantidad <= 0 or cantidad > 2147483647:
+            raise ValueError
+    except ValueError:
+        return None, 'La cantidad debe ser un entero positivo.'
+
+    try:
+        precio = Decimal(form.get('precio_unitario', ''))
+        if (not precio.is_finite() or precio <= 0
+                or precio > Decimal('99999999.99')
+                or precio.as_tuple().exponent < -2):
+            raise ValueError
+    except (InvalidOperation, ValueError):
+        return None, 'El precio debe ser positivo y tener máximo dos decimales.'
+
+    return (orden, producto, cantidad, precio), None
 
 
 @bp.route('/', strict_slashes=False)
@@ -11,131 +48,53 @@ def listar_detalles():
     cursor = conexion.cursor()
 
     cursor.execute("""
-        SELECT detalles_orden.detalle_id,
-               ordenes.orden_id,
-               productos.nombre,
-               detalles_orden.cantidad,
-               detalles_orden.precio_unitario
-        FROM detalles_orden
-        LEFT JOIN ordenes
-        ON detalles_orden.orden_id = ordenes.orden_id
-        LEFT JOIN productos
-        ON detalles_orden.producto_id = productos.producto_id
-        ORDER BY detalles_orden.detalle_id
+        SELECT d.detalle_id, d.orden_id, p.nombre,
+               d.cantidad, d.precio_unitario
+        FROM detalles_orden d
+        LEFT JOIN productos p ON d.producto_id = p.producto_id
+        ORDER BY d.detalle_id
     """)
 
     detalles = cursor.fetchall()
-
     cursor.close()
     conexion.close()
 
     return render_template('detalles/detalles.html', detalles=detalles)
 
 
-
 @bp.route('/nuevo', methods=['GET', 'POST'])
 def nuevo_detalle():
-
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
     cursor.execute("SELECT orden_id FROM ordenes ORDER BY orden_id")
     ordenes = cursor.fetchall()
 
-    cursor.execute("SELECT producto_id, nombre, precio FROM productos ORDER BY nombre")
+    cursor.execute("SELECT producto_id, nombre FROM productos ORDER BY nombre")
     productos = cursor.fetchall()
 
     if request.method == 'POST':
-        orden_texto = request.form.get('orden_id', '').strip()
-        producto_texto = request.form.get('producto_id', '').strip()
-        cantidad_texto = request.form.get('cantidad', '').strip()
-        precio_texto = request.form.get('precio_unitario', '').strip()
+        datos, error = validar_detalle(request.form, ordenes, productos)
 
-        # Validar orden
-        try:
-            orden_id = int(orden_texto)
-        except ValueError:
-            orden_id = None
+        if error:
+            flash(error, 'danger')
+        else:
+            try:
+                cursor.execute("""
+                    INSERT INTO detalles_orden
+                    (orden_id, producto_id, cantidad, precio_unitario)
+                    VALUES (%s, %s, %s, %s)
+                """, datos)
 
-        if not any(orden[0] == orden_id for orden in ordenes):
-            flash('Debes seleccionar una orden existente.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/nuevo_detalle.html',
-                ordenes=ordenes,
-                productos=productos
-            )
+                conexion.commit()
+                flash('Detalle registrado correctamente.', 'success')
+                cursor.close()
+                conexion.close()
+                return redirect('/detalles')
 
-        # Validar producto
-        try:
-            producto_id = int(producto_texto)
-        except ValueError:
-            producto_id = None
-
-        if not any(producto[0] == producto_id for producto in productos):
-            flash('Debes seleccionar un producto existente.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/nuevo_detalle.html',
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        # Validar cantidad
-        try:
-            cantidad = int(cantidad_texto)
-
-            if cantidad <= 0 or cantidad > 2147483647:
-                raise ValueError
-
-        except ValueError:
-            flash('La cantidad debe ser un entero entre 1 y 2147483647.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/nuevo_detalle.html',
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        # Validar precio
-        try:
-            precio_unitario = Decimal(precio_texto)
-
-            if (not precio_unitario.is_finite()
-                    or precio_unitario <= 0
-                    or precio_unitario > Decimal('99999999.99')
-                    or precio_unitario.as_tuple().exponent < -2):
-                raise ValueError
-
-        except (InvalidOperation, ValueError):
-            flash('El precio debe ser mayor que cero y no superar 99999999.99, con maximo dos decimales.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/nuevo_detalle.html',
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        # Registrar detalle
-        cursor.execute(
-            """
-            INSERT INTO detalles_orden
-            (orden_id, producto_id, cantidad, precio_unitario)
-            VALUES (%s, %s, %s, %s)
-            """,
-            (orden_id, producto_id, cantidad, precio_unitario)
-        )
-
-        conexion.commit()
-        cursor.close()
-        conexion.close()
-
-        flash('Detalle registrado correctamente.', 'success')
-        return redirect('/detalles')
+            except psycopg2.Error:
+                conexion.rollback()
+                flash('Error al registrar el detalle.', 'danger')
 
     cursor.close()
     conexion.close()
@@ -149,7 +108,6 @@ def nuevo_detalle():
 
 @bp.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar_detalle(id):
-
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
@@ -162,7 +120,7 @@ def editar_detalle(id):
     if not detalle:
         cursor.close()
         conexion.close()
-        flash('El detalle que intentas editar no existe.', 'danger')
+        flash('El detalle no existe.', 'warning')
         return redirect('/detalles')
 
     cursor.execute("SELECT orden_id FROM ordenes ORDER BY orden_id")
@@ -172,101 +130,36 @@ def editar_detalle(id):
     productos = cursor.fetchall()
 
     if request.method == 'POST':
-        orden_texto = request.form.get('orden_id', '').strip()
-        producto_texto = request.form.get('producto_id', '').strip()
-        cantidad_texto = request.form.get('cantidad', '').strip()
-        precio_texto = request.form.get('precio_unitario', '').strip()
+        datos, error = validar_detalle(request.form, ordenes, productos)
 
-        try:
-            orden_id = int(orden_texto)
-        except ValueError:
-            orden_id = None
-
-        if not any(orden[0] == orden_id for orden in ordenes):
-            flash('Debes seleccionar una orden existente.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/editar_detalle.html',
-                detalle=(id, orden_texto, producto_texto, cantidad_texto, precio_texto),
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        # Validar producto
-        try:
-            producto_id = int(producto_texto)
-        except ValueError:
-            producto_id = None
-
-        if not any(producto[0] == producto_id for producto in productos):
-            flash('Debes seleccionar un producto existente.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/editar_detalle.html',
-                detalle=(id, orden_id, producto_texto, cantidad_texto, precio_texto),
-                ordenes=ordenes,
-                productos=productos
-            )
-
-                # Validar cantidad
-        try:
-            cantidad = int(cantidad_texto)
-
-            if cantidad <= 0 or cantidad > 2147483647:
-                raise ValueError
-
-        except ValueError:
-            flash('La cantidad debe ser un entero entre 1 y 2147483647.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/editar_detalle.html',
-                detalle=(id, orden_id, producto_id, cantidad_texto, precio_texto),
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        # Validar precio
-        try:
-            precio_unitario = Decimal(precio_texto)
-
-            if (not precio_unitario.is_finite()
-                    or precio_unitario <= 0
-                    or precio_unitario > Decimal('99999999.99')
-                    or precio_unitario.as_tuple().exponent < -2):
-                raise ValueError
-
-        except (InvalidOperation, ValueError):
-            flash('El precio debe ser mayor que cero y no superar 99999999.99, con maximo dos decimales.', 'danger')
-            cursor.close()
-            conexion.close()
-            return render_template(
-                'detalles/editar_detalle.html',
-                detalle=(id, orden_id, producto_id, cantidad_texto, precio_texto),
-                ordenes=ordenes,
-                productos=productos
-            )
-
-        cursor.execute(
-            """
-            UPDATE detalles_orden
-            SET orden_id = %s,
-                producto_id = %s,
-                cantidad = %s,
-                precio_unitario = %s
-            WHERE detalle_id = %s
-            """,
-            (orden_id, producto_id, cantidad, precio_unitario, id)
+        detalle = (
+            id,
+            request.form.get('orden_id', ''),
+            request.form.get('producto_id', ''),
+            request.form.get('cantidad', ''),
+            request.form.get('precio_unitario', '')
         )
 
-        conexion.commit()
-        cursor.close()
-        conexion.close()
+        if error:
+            flash(error, 'danger')
+        else:
+            try:
+                cursor.execute("""
+                    UPDATE detalles_orden
+                    SET orden_id = %s, producto_id = %s,
+                        cantidad = %s, precio_unitario = %s
+                    WHERE detalle_id = %s
+                """, datos + (id,))
 
-        flash('Detalle actualizado correctamente.', 'success')
-        return redirect('/detalles')
+                conexion.commit()
+                flash('Detalle actualizado correctamente.', 'success')
+                cursor.close()
+                conexion.close()
+                return redirect('/detalles')
+
+            except psycopg2.Error:
+                conexion.rollback()
+                flash('Error al actualizar el detalle.', 'danger')
 
     cursor.close()
     conexion.close()
@@ -284,14 +177,21 @@ def eliminar_detalle(id):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
-    cursor.execute(
-        "DELETE FROM detalles_orden WHERE detalle_id = %s",
-        (id,)
-    )
+    try:
+        cursor.execute(
+            "DELETE FROM detalles_orden WHERE detalle_id = %s",
+            (id,)
+        )
 
-    conexion.commit()
+        conexion.commit()
+        flash('Detalle eliminado correctamente.', 'success')
 
-    cursor.close()
-    conexion.close()
+    except psycopg2.Error:
+        conexion.rollback()
+        flash('Error al eliminar el detalle.', 'danger')
+
+    finally:
+        cursor.close()
+        conexion.close()
 
     return redirect('/detalles')

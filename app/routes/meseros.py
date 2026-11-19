@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, redirect, flash
 from datetime import datetime
 from app.database import obtener_conexion
+import psycopg2
 
 bp = Blueprint("meseros", __name__, url_prefix="/meseros")
-
 
 @bp.route('/', strict_slashes=False)
 def listar_meseros():
@@ -157,13 +157,19 @@ def eliminar_mesero(id):
     conexion = obtener_conexion()
     cursor = conexion.cursor()
 
-    cursor.execute(
-        "DELETE FROM meseros WHERE mesero_id = %s",
-        (id,)
-    )
+    try:
+        cursor.execute(
+            "DELETE FROM meseros WHERE mesero_id = %s",
+            (id,)
+        )
+        conexion.commit()
 
-    conexion.commit()
-    cursor.close()
-    conexion.close()
+    except psycopg2.errors.ForeignKeyViolation:
+        conexion.rollback()
+        flash('No se puede eliminar porque tiene órdenes asociadas.', 'danger')
+
+    finally:
+        cursor.close()
+        conexion.close()
 
     return redirect('/meseros')

@@ -1,0 +1,19 @@
+# Entornos virtuales
+.venv/
+myenv/
+myvenv/
+
+# Credenciales
+.env
+
+# Archivos temporales de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Configuración local
+.vscode/
+
+# Copias de seguridad
+app/routes_backup.py
+app/routes_respaldo/
