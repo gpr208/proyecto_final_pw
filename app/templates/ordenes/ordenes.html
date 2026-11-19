@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block titulo %}Nombre de la página - Bar Central{% endblock %}
+
+{% block contenido %}
+
+    <main class="container mt-5">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h2>Órdenes registradas</h2>
+            <a href="/ordenes/nueva" class="boton-menu">+ Nueva orden</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Número de mesa</th>
+                        <th>Fecha y hora</th>
+                        <th>Estado</th>
+                        <th>Mesero</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for orden in ordenes %}
+                    <tr>
+                        <td>{{ orden[0] }}</td>
+                        <td>{{ orden[1] }}</td>
+                        <td>{{ orden[2] }}</td>
+                        <td>{{ orden[3] }}</td>
+                        <td>{{ orden[4] }}</td>
+                        <td>
+    <a href="/ordenes/editar/{{ orden[0] }}"
+       class="btn btn-warning btn-sm me-2">
+        Editar
+    </a>
+
+    <form action="/ordenes/eliminar/{{ orden[0] }}"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('¿Estás seguro de eliminar esta orden?');">
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            Eliminar
+        </button>
+    </form>
+</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4">
+            <a href="/" class="boton-menu">Volver al inicio</a>
+        </div>
+
+    </main>
+
+   
+
+{% endblock %}

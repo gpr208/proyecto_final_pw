@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titulo %}Productos - Bar Central{% endblock %}
+
+{% block contenido %}
+
+    <main class="container mt-5">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h2>Productos registrados</h2>
+            <a href="/productos/nuevo" class="boton-menu">+ Nuevo producto</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Categoría</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{ producto[0] }}</td>
+                        <td>{{ producto[1] }}</td>
+                        <td>${{ producto[2] }}</td>
+                        <td>{{ producto[3] }}</td>
+                        <td>{{ producto[4] }}</td>
+                      <td>
+    <a href="/productos/editar/{{ producto[0] }}"
+       class="btn btn-warning btn-sm me-2">
+        Editar
+    </a>
+
+    <form action="/productos/eliminar/{{ producto[0] }}"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('¿Estás seguro de eliminar este producto?');">
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            Eliminar
+        </button>
+
+    </form>
+</td>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4">
+            <a href="/" class="boton-menu">Volver al inicio</a>
+        </div>
+
+    </main>
+
+   
+
+</body>
+{% endblock %}

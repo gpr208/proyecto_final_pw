@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block titulo %}Nombre de la página - Bar Central{% endblock %}
+
+{% block contenido %}
+
+    <main class="container mt-5">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h2>Detalles registrados</h2>
+            <a href="/detalles/nuevo" class="boton-menu">+ Nuevo detalle</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Número de orden</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio unitario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for detalle in detalles %}
+                    <tr>
+                        <td>{{ detalle[0] }}</td>
+                        <td>{{ detalle[1] }}</td>
+                        <td>{{ detalle[2] }}</td>
+                        <td>{{ detalle[3] }}</td>
+                        <td>${{ detalle[4] }}</td>
+                        <td>
+    <a href="/detalles/editar/{{ detalle[0] }}"
+       class="btn btn-warning btn-sm me-2">
+        Editar
+    </a>
+
+    <form action="/detalles/eliminar/{{ detalle[0] }}"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('¿Estás seguro de eliminar este detalle?');">
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            Eliminar
+        </button>
+
+    </form>
+</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4">
+            <a href="/" class="boton-menu">Volver al inicio</a>
+        </div>
+
+    </main>
+
+  
+
+{% endblock %}

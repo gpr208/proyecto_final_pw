@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block titulo %}Categorías - Bar Central{% endblock %}
+
+{% block contenido %}
+<body>
+
+    <main class="container mt-5">
+
+        <h2 class="mb-4">Categorías registradas</h2>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria[0] }}</td>
+                        <td>{{ categoria[1] }}</td>
+                        <td>{{ categoria[2] }}</td>
+                       <td>
+    <a href="/categorias/editar/{{ categoria[0] }}"
+       class="btn btn-warning btn-sm mb-2">
+        Editar
+    </a>
+                         <form action="/categorias/eliminar/{{ categoria[0] }}"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('¿Esta seguro segurin de eliminar esta categoría?');">
+        <button type="submit" class="btn btn-danger btn-sm">
+            Eliminar
+        </button>
+    </form>
+</td>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="/" class="boton-menu">Volver al inicio</a>
+
+    </main>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+    <h2 class="mb-0"></h2>
+
+    <a href="/categorias/nueva" class="boton-menu">
+        + Nueva categoría
+    </a>
+
+</div>
+</body>
+    </tbody>
+</table>
+
+{% endblock %}
+

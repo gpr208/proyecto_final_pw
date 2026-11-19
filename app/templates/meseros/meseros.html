@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block titulo %}Nombre de la página - Bar Central{% endblock %}
+
+{% block contenido %}
+
+    <main class="container mt-5">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+            <h2>Meseros registrados</h2>
+            <a href="/meseros/nuevo" class="boton-menu">+ Nuevo mesero</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Fecha de contratación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for mesero in meseros %}
+                    <tr>
+                        <td>{{ mesero[0] }}</td>
+                        <td>{{ mesero[1] }}</td>
+                        <td>{{ mesero[2] }}</td>
+                        <td>{{ mesero[3] }}</td>
+                        <td>
+    <a href="/meseros/editar/{{ mesero[0] }}"
+       class="btn btn-warning btn-sm me-2">
+        Editar
+    </a>
+
+    <form action="/meseros/eliminar/{{ mesero[0] }}"
+          method="POST"
+          style="display:inline;"
+          onsubmit="return confirm('¿Estás seguro de eliminar este mesero?');">
+
+        <button type="submit" class="btn btn-danger btn-sm">
+            Eliminar
+        </button>
+
+    </form>
+</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4">
+            <a href="/" class="boton-menu">Volver al inicio</a>
+        </div>
+
+    </main>
+
+    
+{% endblock %}
