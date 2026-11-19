@@ -2,12 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict gOC8QJzCYvNPebKFSRwulKksKQReFq6pz9ZqadZemmej9GbTa49ylMfP9tZn8h9
+\restrict SvNIAE4f8UBufHhmYs4F9jsz0ku1MkhxqFpJc1jVK83u5ASW3Eb9nG01llc5ebz
 
 -- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
 
--- Started on 2026-11-17 11:54:50
+-- Started on 2026-11-19 16:30:52
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -274,16 +274,16 @@ ALTER TABLE ONLY public.productos ALTER COLUMN producto_id SET DEFAULT nextval('
 --
 
 COPY public.categorias (categoria_id, nombre, descripcion) FROM stdin;
-1	Cervezas	Bebidas de cerveza
-2	Aguardientes	Bebidas de aguardiente
-3	Whisky	Bebidas de whisky
-4	Ron	Bebidas de ron
 5	Vodka	Bebidas de vodka
 6	Tequila	Bebidas de tequila
 7	Cocteles	Preparaciones de cocteles
 8	Bebidas sin alcohol	Bebidas no alcoholicas
 9	Snacks	Alimentos y pasabocas
 10	Energizantes	Bebidas energizantes
+2	Aguardientes	aguardiente para el agua fria
+3	Whisky	wijky
+4	Ron	ron para la roneria
+1	Cervezas	Cerveza, cerveza, quiero tomar cerveza\r\nCerveza, cerveza, quiero tomar cerveza
 \.
 
 
@@ -294,7 +294,6 @@ COPY public.categorias (categoria_id, nombre, descripcion) FROM stdin;
 --
 
 COPY public.detalles_orden (detalle_id, orden_id, producto_id, cantidad, precio_unitario) FROM stdin;
-1	1	1	2	5000.00
 2	2	2	1	35000.00
 3	3	3	1	180000.00
 4	4	4	2	32000.00
@@ -304,6 +303,7 @@ COPY public.detalles_orden (detalle_id, orden_id, producto_id, cantidad, precio_
 8	8	8	3	5000.00
 9	9	9	2	15000.00
 10	10	10	2	7000.00
+13	1	1	5	2300.00
 \.
 
 
@@ -314,7 +314,6 @@ COPY public.detalles_orden (detalle_id, orden_id, producto_id, cantidad, precio_
 --
 
 COPY public.meseros (mesero_id, nombre, telefono, fecha_contratacion) FROM stdin;
-1	Carlos Mendoza	3001112233	2024-01-15
 2	Laura Gomez	3002223344	2024-02-10
 3	Andres Ramirez	3003334455	2024-03-05
 4	Maria Lopez	3004445566	2024-04-12
@@ -324,6 +323,7 @@ COPY public.meseros (mesero_id, nombre, telefono, fecha_contratacion) FROM stdin
 8	Valentina Rojas	3008889900	2024-08-14
 9	Camilo Herrera	3009990011	2024-09-09
 10	Sofia Ramirez	3010001122	2024-10-01
+1	Carlos Mendoza	3001112233	2026-03-12
 \.
 
 
@@ -334,8 +334,6 @@ COPY public.meseros (mesero_id, nombre, telefono, fecha_contratacion) FROM stdin
 --
 
 COPY public.ordenes (orden_id, numero_mesa, fecha_hora, estado, mesero_id) FROM stdin;
-1	1	2026-11-17 11:36:09.47903	Cerrada	1
-2	2	2026-11-17 11:36:09.47903	Cerrada	2
 3	3	2026-11-17 11:36:09.47903	Servida	3
 4	4	2026-11-17 11:36:09.47903	Abierta	4
 5	5	2026-11-17 11:36:09.47903	Cerrada	5
@@ -344,6 +342,8 @@ COPY public.ordenes (orden_id, numero_mesa, fecha_hora, estado, mesero_id) FROM 
 8	8	2026-11-17 11:36:09.47903	Cerrada	8
 9	9	2026-11-17 11:36:09.47903	Abierta	9
 10	10	2026-11-17 11:36:09.47903	Cerrada	10
+2	1	2026-11-17 11:36:09.47903	En proceso	3
+1	1	2026-11-17 11:36:09.47903	Cerrada	1
 \.
 
 
@@ -354,7 +354,6 @@ COPY public.ordenes (orden_id, numero_mesa, fecha_hora, estado, mesero_id) FROM 
 --
 
 COPY public.productos (producto_id, nombre, precio, stock, categoria_id) FROM stdin;
-1	Cerveza Aguila 330ml	5000.00	100	1
 2	Aguardiente Antioqueno 375ml	35000.00	30	2
 3	Whisky Old Parr 750ml	180000.00	15	3
 4	Ron Medellin 375ml	32000.00	25	4
@@ -364,6 +363,7 @@ COPY public.productos (producto_id, nombre, precio, stock, categoria_id) FROM st
 8	Gaseosa Coca Cola 400ml	5000.00	80	8
 9	Papas a la Francesa	15000.00	30	9
 10	Bebida Energizante 250ml	7000.00	45	10
+1	Cerveza Aguila 330ml	2350.00	100	1
 \.
 
 
@@ -373,7 +373,7 @@ COPY public.productos (producto_id, nombre, precio, stock, categoria_id) FROM st
 -- Name: categorias_categoria_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.categorias_categoria_id_seq', 10, true);
+SELECT pg_catalog.setval('public.categorias_categoria_id_seq', 16, true);
 
 
 --
@@ -382,7 +382,7 @@ SELECT pg_catalog.setval('public.categorias_categoria_id_seq', 10, true);
 -- Name: detalles_orden_detalle_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.detalles_orden_detalle_id_seq', 10, true);
+SELECT pg_catalog.setval('public.detalles_orden_detalle_id_seq', 13, true);
 
 
 --
@@ -391,7 +391,7 @@ SELECT pg_catalog.setval('public.detalles_orden_detalle_id_seq', 10, true);
 -- Name: meseros_mesero_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.meseros_mesero_id_seq', 10, true);
+SELECT pg_catalog.setval('public.meseros_mesero_id_seq', 14, true);
 
 
 --
@@ -400,7 +400,7 @@ SELECT pg_catalog.setval('public.meseros_mesero_id_seq', 10, true);
 -- Name: ordenes_orden_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.ordenes_orden_id_seq', 10, true);
+SELECT pg_catalog.setval('public.ordenes_orden_id_seq', 13, true);
 
 
 --
@@ -409,7 +409,7 @@ SELECT pg_catalog.setval('public.ordenes_orden_id_seq', 10, true);
 -- Name: productos_producto_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.productos_producto_id_seq', 10, true);
+SELECT pg_catalog.setval('public.productos_producto_id_seq', 14, true);
 
 
 --
@@ -493,11 +493,11 @@ ALTER TABLE ONLY public.productos
     ADD CONSTRAINT productos_categoria_id_fkey FOREIGN KEY (categoria_id) REFERENCES public.categorias(categoria_id);
 
 
--- Completed on 2026-11-17 11:54:50
+-- Completed on 2026-11-19 16:30:53
 
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict gOC8QJzCYvNPebKFSRwulKksKQReFq6pz9ZqadZemmej9GbTa49ylMfP9tZn8h9
+\unrestrict SvNIAE4f8UBufHhmYs4F9jsz0ku1MkhxqFpJc1jVK83u5ASW3Eb9nG01llc5ebz
 

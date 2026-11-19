@@ -17,3 +17,6 @@ __pycache__/
 # Copias de seguridad
 app/routes_backup.py
 app/routes_respaldo/
+
+# Archivos temporales de pytest
+.pytest_cache/
