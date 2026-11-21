@@ -1,0 +1,25 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-9.2.0, pluggy-1.7.0 -- C:\Users\PC\Downloads\proyecto_final_pw\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\PC\Downloads\proyecto_final_pw
+collecting ... collected 17 items
+
+tests/test_categorias.py::test_listar_categorias PASSED                  [  5%]
+tests/test_categorias.py::test_crear_categoria PASSED                    [ 11%]
+tests/test_categorias.py::test_editar_categoria PASSED                   [ 17%]
+tests/test_categorias.py::test_eliminar_categoria PASSED                 [ 23%]
+tests/test_detalles.py::test_listar_detalles PASSED                      [ 29%]
+tests/test_detalles.py::test_crear_detalle PASSED                        [ 35%]
+tests/test_detalles.py::test_rechazar_detalle_cantidad_invalida PASSED   [ 41%]
+tests/test_inicio.py::test_pagina_principal PASSED                       [ 47%]
+tests/test_meseros.py::test_listar_meseros PASSED                        [ 52%]
+tests/test_meseros.py::test_crear_mesero PASSED                          [ 58%]
+tests/test_meseros.py::test_rechazar_mesero_sin_nombre PASSED            [ 64%]
+tests/test_ordenes.py::test_listar_ordenes PASSED                        [ 70%]
+tests/test_ordenes.py::test_crear_orden PASSED                           [ 76%]
+tests/test_ordenes.py::test_rechazar_orden_mesa_invalida PASSED          [ 82%]
+tests/test_productos.py::test_listar_productos PASSED                    [ 88%]
+tests/test_productos.py::test_crear_producto PASSED                      [ 94%]
+tests/test_productos.py::test_rechazar_producto_precio_invalido PASSED   [100%]
+
+============================= 17 passed in 0.86s ==============================
