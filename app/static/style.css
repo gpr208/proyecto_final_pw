@@ -122,3 +122,36 @@ body {
         font-size: 14px;
     }
 }
+
+.encabezado {
+    background-image:
+        linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+        url("/static/img/banner.png");
+
+    background-size: 100% auto;
+    background-position: center 25%;
+    background-repeat: no-repeat;
+
+    padding: 70px 20px;
+    text-align: center;
+    color: white;
+    border-bottom: 5px solid #ffc107;
+}
+
+.encabezado h1 {
+    font-size: 45px;
+    font-weight: bold;
+    text-shadow: 2px 2px 5px black;
+}
+
+.encabezado p {
+    font-size: 20px;
+    text-shadow: 2px 2px 5px black;
+}
+
+.encabezado h1,
+.encabezado p {
+    margin-left: 40%;
+    width: 60%;
+    text-align: center;
+}

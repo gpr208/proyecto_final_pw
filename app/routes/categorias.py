@@ -114,4 +114,3 @@ def eliminar_categoria(id):
             conexion.close()
 
     return redirect('/categorias')
-

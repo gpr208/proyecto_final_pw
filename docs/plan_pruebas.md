@@ -27,10 +27,14 @@
 | CP-10 | Meseros | Rechazar mesero sin nombre | Intentar guardar un mesero dejando el nombre vacío | La app muestra un mensaje de error y no guarda | CP10_mesero_sin_nombre.png | | apronado |
 | CP-11 | Órdenes | Listar órdenes | Entrar a Órdenes (/ordenes) | Se muestra la tabla de órdenes | CP11_listar_ordenes.png | | aprobado |
 | CP-12 | Órdenes | Crear orden | Pulsar nueva orden, elegir mesa y mesero válidos y guardar | La orden aparece en el listado | CP12_crear_orden.png | | aprobado |
-| CP-13 | Órdenes | Rechazar mesa inválida | Intentar crear una orden con una mesa inválida (vacía o inexistente) | La app muestra un mensaje de error y no guarda | CP13_orden_mesa_invalida.png | | fallido |
+| CP-13 | Órdenes | Rechazar orden sin número de mesa | Intentar crear una orden dejando vacío el campo de número de mesa | El formulario impide enviar la orden y muestra que el campo es obligatorio | CP13_completar_campo.png, CP13_orden_no_guardada.png | El navegador muestra "Completa el campo" y no permite guardar la orden | aprobado |
 | CP-14 | Detalles | Crear detalle | Entrar a Detalles, agregar un producto con cantidad válida a una orden y guardar | El detalle aparece en el listado | CP14_crear_detalle.png | | aprobado |
 | CP-15 | Detalles | Rechazar cantidad inválida | Intentar guardar un detalle con cantidad 0 o negativa | La app muestra un mensaje de error y no guarda | CP15_detalle_cantidad_invalida.png | | aprobado |
 
 ## 3. Observaciones
-
-(arreglar lo de las mesas y servido)
+(arreglar lo de las mesas y servido) todo listo y corregido :D
+- Se verificó que el formulario de órdenes impide registrar una orden cuando el número de mesa está vacío.
+- Se actualizaron los formularios de creación y edición de órdenes para incluir los cinco estados disponibles: Abierta, En proceso, En preparación, Servida y Cerrada.
+- Se comprobó que el cambio del estado de una orden a "Servida" se guarda correctamente.
+- Las evidencias de las pruebas manuales se encuentran en la carpeta docs/evidencias/.
+- Las pruebas automatizadas de Pytest registraron 17 pruebas aprobadas.
